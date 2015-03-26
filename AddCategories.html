@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<title>AddCategories</title>
+		<meta name="description" content="">
+		<meta name="author" content="Nicholas">
+		<link href = "css/bootstrap.min.css" rel = "stylesheet" type="text/css">
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	</head>
+
+	<body>
+		<div>
+			<header>
+				<h1>Add Categories</h1>
+			</header>
+			<nav>
+				<p>
+					<a href="/">Home</a>
+				</p>
+				
+			</nav>
+
+			
+			<script>
+				
+				$(document).ready(function() {		
+					var currentCategories = localStorage.getItem('categoriesList');	
+					var rawResultCategories = [];
+					rawResultCategories = JSON.parse(currentCategories);	
+					htmlStr = '<table class="table table-striped"><tr><th>Category</th></tr>';
+					for (var n=0; n < rawResultCategories.length; n++)
+							{
+								htmlStr += '<tr><td><textarea readonly>' + rawResultCategories[n].questionCategory + '</textarea><td></tr>';
+							}
+					
+					htmlStr += '</table>';							
+					$("#categoriesList").append(htmlStr);
+				});
+			</script>
+
+			<div class="form-horizontal">
+				<div class="modal-body">
+					<div class="form-group">
+						<label for = "questiondCategory">Enter New Category:</label>
+						<textarea name="questionCategory" id="questionCategory" class="form-control" rows="1" cols="40"></textarea> 
+					</div>
+					<br />
+					<input id="saveCategory" type="button" value="Save Category" onclick="saveCategory();" style="color:black;"/>						
+				</div>
+			</div>
+			<div class="form-group" id="categoriesList">					
+					
+			</div>
+			<script>
+			function saveCategory() {    			    				
+				if (localStorage.getItem("categoriesList") === null) {  				   
+  				   var x = 0;
+  				   var storedCategories = [];  				
+				}
+				else
+				{
+					var storedCategories = JSON.parse(localStorage["categoriesList"]);
+					var x = storedCategories.length;					
+				}				
+			    			
+			    var categoriessAdded = [];			    			    
+			    var newCategory = {'questionCategory': document.getElementById("questionCategory").value};
+				storedCategories[x] = newCategory;
+				// Put the object into storage
+				localStorage.setItem('categoriesList', JSON.stringify(storedCategories));				
+				document.getElementById("questionCategory").value = "";
+				
+				//$('#categoriesList').empty();
+				document.location.reload("true");
+				
+			}			
+			
+		</script>
+
+			<footer>
+				<p>
+					&copy; Copyright  by Nicholas
+				</p>
+			</footer>
+		</div>
+	</body>
+</html>

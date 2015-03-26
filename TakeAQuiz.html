@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<!--<script src="LoadQuestion.js"></script>-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href = "css/bootstrap.min.css" rel = "stylesheet" type="text/css">
+		<link href = "css/styles.css" rel = "stylesheet" type="text/css"> 
+		<title>TakeAQuiz</title>
+		<meta name="description" content="">
+		<meta name="author" content="Nicholas">
+		
+		<!--<meta name="viewport" content="width=device-width; initial-scale=1.0">-->
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		
+		<style type="text/css" media="screen">
+
+			body{
+			     background-color:#FFFFFF;
+			     color:black;
+			     margin:25px 25px 25px 25px;		
+			}		
+			
+			
+		</style>
+		
+	</head>
+	<body>		
+		<header>
+			<h2>Take A Quiz</h2>
+			<div id="exampleIndicator">
+				
+			</div>
+		</header>
+		<nav>
+			<p>
+				<a href="/">Home</a>
+			
+				
+			</p>
+		</nav>
+
+			
+		<script>
+		$(document).ready(function() {								
+			
+			var exampleIndicator = sessionStorage.getItem("Example-quiz");
+			//alert(exampleIndicator);
+			
+			if (exampleIndicator === "true")
+			
+			{
+				htmlStr = "Example Only";
+				$("#exampleIndicator").append(htmlStr);
+				
+				
+				jQuery.ajax({
+				type : "POST",
+				url : 'getQuestions.php',
+				data : {
+					functionname : 'survey',
+					arguments : [1]				
+				},
+				success : function(data) {
+					var result = JSON.parse(data);
+					var resultLength = result.length;	
+					
+					for (var i = resultLength - 1; i > 0; i--) {
+		    			var j = Math.floor(Math.random() * (i + 1));
+		    			var temp = result[i];
+		    			result[i] = result[j];
+		    			result[j] = temp;
+					}
+					document.getElementById("questionTotalDisplay").value = resultLength;					
+					sessionStorage.setItem("QuestionsArray", JSON.stringify(result));				
+					document.getElementById('answer').focus();				
+					var x = -1; //There is no question 0 but the nextQuestion function automatically increments the 
+								//counter so x has to be initialized to -1 here and stored in sessionStorage.				
+					sessionStorage.setItem("CurrentQuestionNo", x);		
+					sessionStorage.setItem("QuestionsList", JSON.stringify(result));	
+					findNextQuestion();
+							
+					//getNextQuestion();		
+					
+				}
+				});	
+			}
+			
+			if ((localStorage.getItem("categoriesList") === null) ||
+			    exampleIndicator === "true") {  				   
+			   			
+			}
+			else
+			{
+		
+				var currentCategories = localStorage.getItem('categoriesList');									
+				var rawResultCategories = [];
+				rawResultCategories = JSON.parse(currentCategories);									
+												
+				var m=0;
+				
+				htmlStr = '<select onchange="updateCategory()" id="categoryDropValues"><option value="All">All</option>';
+				for (var n=0; n < rawResultCategories.length; n++)
+				{
+					htmlStr += '<option value="' + rawResultCategories[n].questionCategory +
+					             '">' + rawResultCategories[n].questionCategory + '</option>';										
+											
+				}				
+		
+				htmlStr += '</select>';							
+				$("#categoryDropList").append(htmlStr);
+			}
+					//document.getElementById("questionCategory").value = "All";
+			if (localStorage.getItem("testObject") === null) {  		
+				document.getElementById("questiondisplay").value = "You have no questions yet";
+				document.getElementById("nextQuestion").disabled = true;
+				$("#nextQuestion").css( "color", "gray");
+			}
+			else {
+				var currentQuestions = localStorage.getItem('testObject');									
+				rawResult = JSON.parse(currentQuestions);									
+				var result = [];									
+				var l=0;
+				for (var k=0; k < rawResult.length; k++)
+				{										
+					result[l] = rawResult[k];
+					l++;					
+												
+				}
+				 
+				var resultLength = result.length;
+				for (var i = resultLength - 1; i > 0; i--) {
+					var j = Math.floor(Math.random() * (i + 1));
+					var temp = result[i];
+					result[i] = result[j];
+					result[j] = temp;
+				}
+				document.getElementById("questionTotalDisplay").value = resultLength;					
+				sessionStorage.setItem("QuestionsList", JSON.stringify(result));				
+				document.getElementById('answer').focus();				
+				var x = -1; //There is no question 0 but the nextQuestion function automatically increments the 
+							//counter so x has to be initialized to -1 here and stored in sessionStorage.				
+				sessionStorage.setItem("CurrentQuestionNo", x);	
+				document.getElementById("nextQuestion").disabled = false; //Some browsers require this here			
+				findNextQuestion();	
+			}
+					
+			document.getElementById("previousQuestion").disabled = true;
+		    $("#previousQuestion").css( "color", "gray");	
+														
+		});
+		
+		</script>
+   
+        <div class="form-horizontal">
+			<div class="modal-body">	
+				
+				<div class="form-group" id="categoryDropList">					
+					<!--<label for = "categoryDropValues">Category</label>-->
+				</div>
+				
+				<div class="form-group" id="displayQuestion">
+					<!--<label for = "questiondisplay">Question:</label>
+			    	<textarea name="questiondisplay" id="questiondisplay" class="form-control" readonly></textarea>-->
+			    </div>	
+			    <div class="form-group">
+					<label for = "answer">Answer:</label>
+			    	<textarea name="answer" id="answer" class="form-control" rows="10" cols="40"></textarea>		
+			    </div>   
+			    <div class="form-group">
+					<label for = "correctanswer"> Correct Answer:</label>
+					<textarea name="correctanswer" id="correctanswer" class="form-control" rows="10" cols="40" readonly></textarea>
+				</div>
+				<input id="nextQuestion" type="button" value="Next Question" onclick="findNextQuestion();" style="color:black;"/>
+				<input id="checkAnswer" type="button" value="Check Answer" onclick="checkanswer();" style="color:black;"/>
+				<input id="previousQuestion" type="button" value="Previous Question" onclick="findPreviousQuestion();" style="color:black;"/><br/><br/>
+				<p>Question: <input type="text" name="questionCountDisplay" id="questionCountDisplay" size = "4" readonly> of <input type="text" name="questionTotalDisplay" id="questionTotalDisplay" size = "4" readonly></p>	
+			</div>
+		</div>
+		<script>
+			function findNextQuestion() {   			 			    
+			    
+			    questionsList = sessionStorage.getItem("QuestionsList");				
+				var questionsArrayResult = JSON.parse(questionsList);				
+				var x = sessionStorage.getItem("CurrentQuestionNo");				
+			    x++;
+			    
+			    if (x == questionsArrayResult.length - 1)
+			    {			    	
+			    	document.getElementById("nextQuestion").disabled = true;
+			    	$("#nextQuestion").css( "color", "gray");			    	
+			    }
+			    
+			    if (x < questionsArrayResult.length)
+			    {			    				    
+				    
+				    var str = questionsArrayResult[x].question;	
+				    
+				    var lines = 0;
+					for(var i = 0; i < str.length; ++i){
+					    if(str[i] == '\n') {
+					        lines++;
+					    }
+					}
+					lines++;					
+					$('#questiondisplay').remove();
+					$('#questionLabel').remove();
+					
+				    htmlStr = '<label for = "questiondisplay" id="questionLabel">Question:</label>' +
+			    	'<textarea name="questiondisplay" id="questiondisplay" class="form-control"' +
+			    	'rows="' + lines + '"' +
+			    	'readonly></textarea>';
+			    	
+			    	$("#displayQuestion").append(htmlStr);
+				    document.getElementById("questiondisplay").value = questionsArrayResult[x].question;	
+				    var tempQuestion = questionsArrayResult[x].question;
+				    			    
+				    sessionStorage.setItem("CurrentQuestionNo", x);				    
+				    sessionStorage.setItem("CurrentAnswer", questionsArrayResult[x].correctanswer);				    
+				    document.getElementById("correctanswer").value = "";				    
+				    document.getElementById("answer").value = "";				    
+				    document.getElementById("answer").focus();		 
+				    document.getElementById("questionCountDisplay").value = x + 1;	
+				    
+				    document.getElementById("previousQuestion").disabled = false;
+			    	$("#previousQuestion").css( "color", "black");			    			    
+			    }
+			    else {			    	
+			   		alert("Those are all of the questions in this quiz");
+				}	    		    
+			}
+			
+			function findPreviousQuestion() {   			 			    
+			    
+			    questionsList = sessionStorage.getItem("QuestionsList");				
+				var questionsArrayResult = JSON.parse(questionsList);				
+				var x = sessionStorage.getItem("CurrentQuestionNo");				
+			    x--;
+			    
+			    if (x == 0)
+			    {			    	
+			    	document.getElementById("previousQuestion").disabled = true;
+			    	$("#previousQuestion").css( "color", "gray");	
+			    	
+			    	//document.getElementById("nextQuestion").disabled = false;
+			    	//$("#nextQuestion").css( "color", "black");				    	
+			    }
+			    
+			    if (x > -1)
+			    {			    				    
+				    
+				    var str = questionsArrayResult[x].question;	
+				    
+				    var lines = 0;
+					for(var i = 0; i < str.length; ++i){
+					    if(str[i] == '\n') {
+					        lines++;
+					    }
+					}
+					lines++;					
+					$('#questiondisplay').remove();
+					$('#questionLabel').remove();
+					
+				    htmlStr = '<label for = "questiondisplay" id="questionLabel">Question:</label>' +
+			    	'<textarea name="questiondisplay" id="questiondisplay" class="form-control"' +
+			    	'rows="' + lines + '"' +
+			    	'readonly></textarea>';
+			    	
+			    	$("#displayQuestion").append(htmlStr);
+				    document.getElementById("questiondisplay").value = questionsArrayResult[x].question;	
+				    var tempQuestion = questionsArrayResult[x].question;
+				    			    
+				    sessionStorage.setItem("CurrentQuestionNo", x);				    
+				    sessionStorage.setItem("CurrentAnswer", questionsArrayResult[x].correctanswer);				    
+				    document.getElementById("correctanswer").value = "";				    
+				    document.getElementById("answer").value = "";				    
+				    document.getElementById("answer").focus();		
+				    document.getElementById("questionCountDisplay").value = x + 1;	
+				    
+				    document.getElementById("nextQuestion").disabled = false;
+			    	$("#nextQuestion").css( "color", "black");						    			    
+			    }
+			    else {			    	
+			   		alert("Those are all of the questions in this quiz");  //This code may be redundant
+				}	    		    
+			}
+			
+			
+			function checkanswer() {   	 							    
+					document.getElementById("correctanswer").value = sessionStorage.getItem("CurrentAnswer");				
+												
+			}		
+			
+			function updateCategory() {				
+				
+				if (localStorage.getItem("testObject") === null) {  		
+						document.getElementById("questiondisplay").value = "You have no questions yet";
+						document.getElementById("nextQuestion").disabled = true;
+						$("#nextQuestion").css( "color", "gray");
+				}
+				else {
+						var currentQuestions = localStorage.getItem('testObject');									
+						rawResult = JSON.parse(currentQuestions);									
+						var result = [];									
+						var l=0;
+						for (var k=0; k < rawResult.length; k++)
+						{
+							if ((rawResult[k].questionCategory == document.getElementById('categoryDropValues').value) ||
+								document.getElementById('categoryDropValues').value == "All")
+							{
+								result[l] = rawResult[k];
+								l++;											
+							}										
+						}
+							
+						if (l > 0) {
+							document.getElementById("nextQuestion").disabled = false; //Some browsers require this here			
+							$("#nextQuestion").css( "color", "black");	
+							var resultLength = result.length;
+							for (var i = resultLength - 1; i > 0; i--) {
+				        		var j = Math.floor(Math.random() * (i + 1));
+				        		var temp = result[i];
+				        		result[i] = result[j];
+				        		result[j] = temp;
+				    		}
+								document.getElementById("questionTotalDisplay").value = resultLength;					
+								sessionStorage.setItem("QuestionsList", JSON.stringify(result));				
+								document.getElementById('answer').focus();				
+								var x = -1; //There is no question 0 but the nextQuestion function automatically increments the 
+											//counter so x has to be initialized to -1 here and stored in sessionStorage.				
+								sessionStorage.setItem("CurrentQuestionNo", x);	
+								
+								findNextQuestion();	
+							}							
+						
+						else
+						{
+							document.getElementById("questionTotalDisplay").value = 0;
+							document.getElementById("correctanswer").value = "";				    
+				    		document.getElementById("answer").value = "";				    
+				    		document.getElementById("answer").focus();		
+				    		document.getElementById("questionCountDisplay").value = 0;		
+				    		$("#nextQuestion").css( "color", "gray");	
+				    		document.getElementById("nextQuestion").disabled = true;
+							
+						}
+				}
+			}	
+		</script>
+			
+
+		<footer>
+			<p>
+				&copy; Copyright  by Nicholas
+			</p>
+		</footer>
+		
+	</body>
+</html>

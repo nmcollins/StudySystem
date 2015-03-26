@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href = "css/bootstrap.min.css" rel = "stylesheet" type="text/css">
+		<link href = "css/styles.css" rel = "stylesheet" type="text/css"> 
+		<title>AddQuestions</title>
+		<meta name="description" content="">
+		<meta name="author" content="Nicholas">
+
+		
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		
+		<style>
+			td {padding:10px;}
+		</style>
+	</head>
+	<body>
+		<div>
+			<header>
+				<h1>Add Questions</h1>
+			</header>
+			<nav>
+				<p>
+					<a href="/">Home</a>
+				</p>
+				
+			</nav>
+			<div>
+				
+				<table>
+					
+					<tr>
+						<td align="right">Category:</td>
+						<td align ="left"><div id="categoryDropList"></div></td>
+					</tr>
+					
+					<tr>
+						<td align="right">Question: </td>
+						<td align="left"><textarea name="question" id="question" rows="5" cols="40"></textarea>						
+					   </td>
+					</tr>
+					<tr>
+						<td align="right">Correct Answer: </td>
+						<td align="left"><textarea name="correctanswer" id="correctanswer" rows="17" cols="40"></textarea>  						  
+					   	</td>	   
+					</tr>
+					<tr>
+						<td>   			
+						</td>
+						<td>
+							<input id="saveQuestion" type="button" value="Save Question" onclick="saveQuestion();" />							
+						</td>   	
+					</tr>   
+   				</table>
+			</div>
+
+			<footer>
+				<p>
+					&copy; Copyright  by Nicholas
+				</p>
+			</footer>
+		</div>		
+		<script>
+			$(document).ready(function() {								
+						
+				if (localStorage.getItem("categoriesList") === null) {  				   
+  				   			
+				}
+				else
+				{		
+					var currentCategories = localStorage.getItem('categoriesList');									
+					var rawResultCategories = [];
+					rawResultCategories = JSON.parse(currentCategories);									
+					//var resultCategories = [];									
+					var m=0;
+					
+					htmlStr = '<select id="categoryDropValues">';
+					for (var n=0; n < rawResultCategories.length; n++)
+					{
+						htmlStr += '<option value="' + rawResultCategories[n].questionCategory +
+						             '">' + rawResultCategories[n].questionCategory + '</option>';
+						
+												
+					}			
+					htmlStr += '</select>';							
+					$("#categoryDropList").append(htmlStr);
+				}
+		 });
+		
+		
+			function saveQuestion() {    			    				
+				if (localStorage.getItem("testObject") === null) {  				   
+  				   var x = 0;
+  				   var storedQuestions = [];  				
+				}
+				else
+				{
+					var storedQuestions = JSON.parse(localStorage["testObject"]);
+					var x = storedQuestions.length;					
+				}				
+			    			
+			    var questionsAdded = [];			    			    
+			    var newQuestion = { 'questionCategory': document.getElementById('categoryDropValues').value, 'question': document.getElementById("question").value, 'correctanswer': document.getElementById("correctanswer").value};
+				storedQuestions[x] = newQuestion;
+				// Put the object into storage
+				localStorage.setItem('testObject', JSON.stringify(storedQuestions));				
+				document.getElementById("question").value = "";
+				document.getElementById("correctanswer").value="";
+				 
+			}			
+			
+		</script>
+	</body>
+</html>

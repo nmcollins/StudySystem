@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<!--<script src="LoadQuestion.js"></script>-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href = "css/bootstrap.min.css" rel = "stylesheet" type="text/css">
+		<link href = "css/styles.css" rel = "stylesheet" type="text/css"> 
+		<title>UpdateQuestions</title>
+		<meta name="description" content="">
+		<meta name="author" content="Nicholas">
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<style>
+			body {margin:25px;}
+			
+		</style>
+		
+	</head>
+
+	<body>
+		<div>
+			<header>
+				<h1>Update Questions</h1>
+			</header>
+			<nav>
+				<p>
+					<a href="/">Home</a>
+				</p>
+				
+			</nav>
+
+			<script>
+					$(document).ready(function() {								
+						
+						var updatedQuestion = sessionStorage.getItem("questionToUpdate");
+						
+						if (localStorage.getItem("categoriesList") === null) {  				   
+		  				   		alert("You have no questions yet");	
+						}
+						else
+						{						
+							var currentQuestions = localStorage.getItem('testObject');									
+							var rawResultQuestions = [];
+							rawResultQuestions = JSON.parse(currentQuestions);									
+							//var resultCategories = [];									
+							var m=0;
+							
+							htmlStr = '<table class="table table-striped"><tr><th>Category</th><th>Question</th><th>Answer</th><th>Edit</th><th>Status</th></tr>';
+							
+							for (var n=0; n < rawResultQuestions.length; n++)
+							{
+								htmlStr += '<tr><td><textarea readonly>' + rawResultQuestions[n].questionCategory + '</textarea></td><td><textarea readonly>' +  rawResultQuestions[n].question +
+								             '</textarea></td><td><textarea readonly>' + rawResultQuestions[n].correctanswer 										             
+								              + '</textarea></td><td><input name="editQuestion" type="button" value="Edit Question"  style="color:black;" onclick="gotToUpdate(' + n + ');"  />'								             
+								              + '</textarea></td><td><input name="deleteQuestion" type="button" value="Delete Question"  style="color:black;" onclick="goToDelete(' + n + ');"  />'
+								              + '</td>'; 
+								              					
+								if (updatedQuestion === n.toString())
+								{
+									//alert(updatedQuestion);
+									htmlStr += '<td><font color="green" font-weight:bold>Just Updated</font></td></tr>';
+								}		
+								else
+								{
+									htmlStr += '<td></td></tr>';	
+								}
+							}				
+					
+							htmlStr += '</table>';							
+							$("#questionsList").append(htmlStr);
+						}
+						//document.getElementById("questionCategory").value = "All";
+								
+																	
+					});
+					function gotToUpdate(n) {						
+						
+						sessionStorage.setItem("questionToUpdate", n);						
+						location.href = "EditQuestion.html";
+					}
+					
+					function goToDelete(n) {
+						sessionStorage.setItem("itemToDelete", n);
+						
+						var currentQuestions = localStorage.getItem('testObject');									
+						var rawResultQuestions = [];
+						rawResultQuestions = JSON.parse(currentQuestions);	
+								
+						
+						
+						if (confirm("Delete item" + "\n" + "question:" + rawResultQuestions[n].question + "\n" + 
+						      "answer:" + rawResultQuestions[n].correctanswer)) {						      	
+						    
+						     rawResultQuestions.splice(n, 1);
+						     localStorage.setItem('testObject', JSON.stringify(rawResultQuestions));
+						     window.location.href = "UpdateQuestions.html";			
+						    // Save it!
+						} else {
+						    // Do nothing!
+						}   
+					
+					}
+    				
+</script>
+
+		
+   
+        <div class="form-horizontal">
+			<div class="modal-body">	
+				
+				<div class="form-group" id="questionsList">					
+					
+				</div>
+				
+				<div class="form-group" id="questionsTable">
+					
+			    </div>	
+			    	
+			</div>
+		</div>
+
+			<footer>
+				<p>
+					&copy; Copyright  by Nicholas
+				</p>
+			</footer>
+		</div>
+	</body>
+</html>

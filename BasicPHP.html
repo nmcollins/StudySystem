@@ -1,0 +1,129 @@
+<!DOCTYPE HTML> 
+<html>
+<head>
+<style>
+.error {color: #FF0000;}
+
+
+</style>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<!--<script src="LoadQuestion.js"></script>-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href = "css/bootstrap.min.css" rel = "stylesheet" type="text/css">
+<link href = "css/styles.css" rel = "stylesheet" type="text/css"> 
+<title>Study System</title>
+
+
+
+</head>
+<body> 
+
+<h2>Study System</h2>
+<script>
+	$(document).ready(function() {
+		jQuery.ajax({
+			type : "POST",
+			url : 'getQuestions.php',
+			data : {
+				functionname : 'survey',
+				arguments : [1]				
+			},
+			success : function(data) {
+				var result = JSON.parse(data);
+				var resultLength = result.length;	
+				
+				for (var i = resultLength - 1; i > 0; i--) {
+        			var j = Math.floor(Math.random() * (i + 1));
+        			var temp = result[i];
+        			result[i] = result[j];
+        			result[j] = temp;
+    			}
+				document.getElementById("questionTotalDisplay").value = resultLength;					
+				sessionStorage.setItem("QuestionsArray", JSON.stringify(result));				
+				document.getElementById('answer').focus();				
+				var x = -1; //There is no question 0 but the nextQuestion function automatically increments the 
+							//counter so x has to be initialized to -1 here and stored in sessionStorage.				
+				sessionStorage.setItem("CurrentQuestionNumber", x);				
+				getNextQuestion();		
+				
+			}
+		});	
+						
+	})
+
+</script>
+   <table>
+    <tr>
+   	   	<td align="right">Question: </td>
+   		<td align="left"><textarea name="question" id="question" rows="5" cols="40" readonly></textarea>	   
+		   
+	   </td>
+   </tr>
+   <tr>
+   	   	<td align="right">Answer: </td>
+   		<td align="left"><textarea name="answer" id="answer" rows="17" cols="40"></textarea>		   
+		   
+	   </td>
+   </tr>
+   <tr>
+   	   	<td align="right">Correct Answer: </td>
+   		<td align="left"><textarea name="correctanswer" id="correctanswer" rows="17" cols="40" readonly></textarea>  
+		   
+	   </td>	   
+   </tr>
+   <tr>
+   		<td>   			
+   		</td>
+   		<td>
+	   		<input id="nextQuestion" type="button" value="Next Question" onclick="getNextQuestion();" />
+			<input id="checkAnswer" type="button" value="Check Answer" onclick="checkanswer();" />
+		</td>
+   	
+   </tr>
+   <tr>
+   		<td>   			
+   		</td>
+   		<td>   	
+   			Question: <input type="text" name="questionCountDisplay" id="questionCountDisplay" size = 4 readonly> of <input type="text" name="questionTotalDisplay" id="questionTotalDisplay" size = 4 readonly>	
+   		</td>
+   </tr>
+   </table>
+   
+   
+	
+	
+		<script>
+			function getNextQuestion() {   			 			    
+			    
+			    questionsArray = sessionStorage.getItem("QuestionsArray");				
+				var questionsArrayResult = JSON.parse(questionsArray);				
+				var x = sessionStorage.getItem("CurrentQuestionNumber");				
+			    x++;
+			    
+			    if (x == questionsArrayResult.length - 1)
+			    {			    	
+			    	document.getElementById("nextQuestion").disabled = true;
+			    }
+			    
+			    if (x < questionsArrayResult.length)
+			    {			    
+				    document.getElementById("question").value = questionsArrayResult[x].QuestionText;					    			    
+				    sessionStorage.setItem("CurrentQuestionNumber", x);				    
+				    sessionStorage.setItem("CurrentAnswer", questionsArrayResult[x].QuestionAnswer);				    
+				    document.getElementById("correctanswer").value = "";				    
+				    document.getElementById("answer").value = "";				    
+				    document.getElementById("answer").focus();		
+				    document.getElementById("questionCountDisplay").value = x + 1;			    			    
+			    }
+			    else {			    	
+			   		alert("Those are all of the questions in this quiz");
+				}	    		    
+			}
+			function checkanswer() {   	 		    
+					document.getElementById("correctanswer").value = sessionStorage.getItem("CurrentAnswer");			
+			}
+			
+		</script>
+</body>
+</html>
